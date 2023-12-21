@@ -8,7 +8,10 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="fixed top-0 left-0 z-50 w-screen h-screen bg-white hidden">
+    <div
+      id="load-screen"
+      class="fixed top-0 left-0 z-50 w-screen h-screen bg-white"
+    >
       <div class="flex justify-center items-center h-full">
         <svg
           class="w-12 h-12 animate-spin"
@@ -29,11 +32,15 @@
     </div>
     <header>
       <div class="flex bg-gray-400">
-        <img src="#" />
         <h1>CLIMATIP</h1>
       </div>
     </header>
-    <main></main>
+    <main id="main-container">
+      <div>
+        <img id="weather-conditions" src="#" />
+        <span id="text"></span>
+      </div>
+    </main>
     <script src="main.js"></script>
   </body>
 </html>

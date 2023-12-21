@@ -1,65 +1,167 @@
-// document.getElementById("submitBtn").addEventListener("click", function () {
-//   const city = document.getElementById("cityInput").value.trim();
-//   if (city !== "") {
-//     const apiKey = "TU_API_KEY"; // Reemplaza 'TU_API_KEY' con tu clave API de weatherapi.com
-//     const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${city}&lang=es`;
+// const DAYLIGHT_CLEAR = [1, 2, 3];
+// ...
+const colorType = {
+  freezing: "bg-frezing",
+  cold: "bg-cold",
+  hot: "bg-hot",
+  veryHot: "bg-very-hot",
+};
 
-//     fetch(url)
-//       .then((response) => {
-//         if (!response.ok) {
-//           throw new Error("La ciudad ingresada no se encontró");
-//         }
-//         return response.json();
-//       })
-//       .then((data) => {
-//         const weatherInfo = document.getElementById("weatherInfo");
-//         weatherInfo.innerHTML = `
-//             <h2>El clima en ${data.location.name}, ${data.location.country}</h2>
-//             <p>Temperatura: ${data.current.temp_c}°C</p>
-//             <p>Condición: ${data.current.condition.text}</p>
-//             <img src="${data.current.condition.icon}" alt="${data.current.condition.text}">
-//           `;
-//       })
-//       .catch((error) => {
-//         const weatherInfo = document.getElementById("weatherInfo");
-//         weatherInfo.innerHTML = `<p>${error.message}</p>`;
-//       });
-//   } else {
-//     alert("Por favor ingrese una ciudad");
-//   }
-// });
+const iconsType = {
+  dayClear: "dayLightClear.jpeg",
+  cloudy: "dayLightCloudy.png",
+  raining: "dayLightRaining.jpeg",
+  snowing: "dayLightSnowing.jpeg",
+  thuntherStorm: "dayLightThuntherstorm.jpeg",
+};
 
-// async function fetchWeather() {
-//   const weatherApi = await fetch("http://api.weatherapi.com/v1");
-//   console.log(weatherApi);
+const conditionsType = {
+  dayClear: [0],
+  cloudy: [1, 2, 3, 45, 48],
+  raining: [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82],
+  snowing: [71, 73, 75, 77, 85, 86],
+  thuntherStorm: [95, 96, 99],
+};
 
-//   function successFn(response) {
-//     console.log(response);
-//   }
+const tempsType = {
+  isFreezing: (temp) => temp < 5,
+  isCold: (temp) => temp >= 5 && temp < 19,
+  ishot: (temp) => temp >= 19 && temp < 26,
+  isVeryHot: (temp) => temp >= 26,
+};
 
-//   weatherApi.then(successFn);
-//   weatherApi.catch(() => console.log("soy un error"));
-// }
-
-// console.log(fetchWeather());
-
-// async function pullWeather() {
-//   const weatherApi = await fetch(
-//     "http://api.weatherapi.com/v1/current.json?key=334bdebfb2b14fe0963195538231412&q=London&aqi=no"
-//     );
-//     console.log(weatherApi);
-
-//     function successFn(response) {
-//       console.log(response);
-//     }
-//     weatherApi.then(successFn);
-//     weatherApi.catch(() => console.log("soy un error"));
-//   }
-// console.log(pullWeather());
-
-// conts url =
-// fetch(url)
-
-function fetchWeather() {
+async function fetchWeather() {
   const location = "London";
+  const url =
+    "https://api.open-meteo.com/v1/forecast?latitude=51.5085&longitude=-0.1257&current=temperature_2m,weather_code";
+
+  const result = await fetch(url);
+  const data = await result.json();
+  console.log(data);
+  const temp = data.current.temperature_2m;
+  // const condition = data.current.condition.code;
+  const condition = data.current.weather_code;
+  const weatherValue = getWeatherValues(temp, condition);
+  const text = document.getElementById("text");
+  text.innerText = weatherValue[1];
+  const loadScreen = document.getElementById("load-screen");
+  loadScreen.classList.add("hidden");
+  const weatherConditions = document.getElementById("weather-conditions");
+  weatherConditions.setAttribute("src", `/weatherImgs/${weatherValue[0]}`);
+  const mainContainer = document.getElementById("main-container");
+  mainContainer.classList.add(weatherValue[2]);
+}
+
+fetchWeather();
+
+function getWeatherValues(temp, condition) {
+  if (conditionsType.dayClear.includes(condition)) {
+    if (tempsType.isFreezing(temp)) {
+      return [
+        iconsType.dayClear,
+        "Chaqueton, bufanda, guantes y gorro",
+        colorType.freezing,
+      ];
+    } else if (tempsType.isCold(temp)) {
+      return [iconsType.dayClear, "Chaqueton y bufanda", colorType.cold];
+    } else if (tempsType.ishot(temp)) {
+      return [
+        iconsType.dayClear,
+        "Camiseta y pantalones cortos",
+        colorType.hot,
+      ];
+    } else if (tempsType.isVeryHot(temp)) {
+      return [
+        iconsType.dayClear,
+        "Camiseta de tirantas, botella de agua y chancletas",
+        colorType.veryHot,
+      ];
+    }
+  }
+
+  if (conditionsType.cloudy.includes(condition)) {
+    if (tempsType.isFreezing(temp)) {
+      return [
+        iconsType.cloudy,
+        "Chaqueton, bufanda, guantes y gorro",
+        colorType.freezing,
+      ];
+    } else if (tempsType.isCold(temp)) {
+      return [iconsType.cloudy, "Chaqueton y bufanda", colorType.cold];
+    } else if (tempsType.ishot(temp)) {
+      return [iconsType.cloudy, "camiseta y pantalones cortos", colorType.hot];
+    } else if (tempsType.isVeryHot(temp)) {
+      return [
+        iconsType.cloudy,
+        "Camiseta de tirantas, botella de agua y chancletas",
+        colorType.veryHot,
+      ];
+    }
+  }
+
+  if (conditionsType.raining.includes(condition)) {
+    if (tempsType.isFreezing(temp)) {
+      return [
+        iconsType.raining,
+        "Paraguas, chaqueton, bufanda, guantes y gorro",
+        colorType.freezing,
+      ];
+    } else if (tempsType.isCold(temp)) {
+      return [
+        iconsType.raining,
+        "Paraguas y chaqueton y bufanda",
+        colorType.cold,
+      ];
+    } else if (tempsType.ishot(temp)) {
+      return [
+        iconsType.raining,
+        "Paraguas, camiseta y pantalones largos",
+        colorType.hot,
+      ];
+    } else if (tempsType.isVeryHot(temp)) {
+      return [
+        iconsType.raining,
+        "Paraguas, pantalones cortos, botella de agua y chancletas",
+        colorType.veryHot,
+      ];
+    }
+  }
+  if (conditionsType.snowing.includes(condition)) {
+    console.log("in");
+    if (tempsType.isFreezing(temp)) {
+      return [
+        iconsType.snowing,
+        "Chaqueton, bufanda, guantes y gorro",
+        colorType.freezing,
+      ];
+    } else if (tempsType.isCold(temp)) {
+      return [iconsType.snowing, "chaqueton y bufanda", colorType.cold];
+      // he quitado los estados is hot y isveryhot porque nevando no llegaran nunca
+    }
+  }
+
+  if (conditionsType.thuntherStorm.includes(condition)) {
+    console.log("in");
+    if (tempsType.isFreezing(temp)) {
+      return [
+        iconsType.thuntherStorm,
+        "Paragua, chaqueton, bufanda, guantes y gorro",
+        colorType.freezing,
+      ];
+    } else if (tempsType.isCold(temp)) {
+      return [iconsType.thuntherStorm, "Chaqueton y bufanda", colorType.cold];
+    } else if (tempsType.ishot(temp)) {
+      return [
+        iconsType.thuntherStorm,
+        "paraguas, camiseta y pantalones cortos",
+        colorType.hot,
+      ];
+    } else if (tempsType.isVeryHot(temp)) {
+      return [
+        iconsType.thuntherStorm,
+        "Paraguas, camiseta de tirantas, botella de agua y chancletas",
+        colorType.veryHot,
+      ];
+    }
+  }
 }
