@@ -1,7 +1,5 @@
-// const DAYLIGHT_CLEAR = [1, 2, 3];
-// ...
 const colorType = {
-  freezing: "bg-frezing",
+  freezing: "bg-freezing",
   cold: "bg-cold",
   hot: "bg-hot",
   veryHot: "bg-very-hot",
@@ -31,7 +29,7 @@ const tempsType = {
 };
 
 async function fetchWeather() {
-  const location = "London";
+  const location = 50.8222022198579;
   const url =
     "https://api.open-meteo.com/v1/forecast?latitude=51.5085&longitude=-0.1257&current=temperature_2m,weather_code";
 
@@ -165,3 +163,40 @@ function getWeatherValues(temp, condition) {
     }
   }
 }
+
+function getLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async function (position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        await fetchWeather(latitude, longitude);
+      },
+      function (error) {
+        // Manejo de errores
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            console.log("El usuario denegó la solicitud de geolocalización.");
+            break;
+          case error.POSITION_UNAVAILABLE:
+            console.log("La información de ubicación no está disponible.");
+            break;
+          case error.TIMEOUT:
+            console.log("Se ha excedido el tiempo para obtener la ubicación.");
+            break;
+          case error.UNKNOWN_ERROR:
+            console.log(
+              "Ocurrió un error desconocido al obtener la ubicación."
+            );
+            break;
+        }
+      }
+    );
+  } else {
+    console.log("La geolocalización no es compatible con este navegador.");
+  }
+}
+
+// Llamar a la función para obtener la ubicación al cargar la página
+getLocation();
